@@ -8,78 +8,106 @@ To write a program to implement the the Logistic Regression Using Gradient Desce
 2. Anaconda – Python 3.7 Installation / Jupyter notebook
 
 ## Algorithm
-1.Import required libraries and load the dataset from CSV file. 
-2.Preprocess the data by converting labels and standardizing features. 
-3.Train the Logistic Regression model using Gradient Descent iterations.
-4.Predict placement status, calculate accuracy, and display the cost graph.
+
+1.Import the necessary python packages
+
+2.Read the dataset.
+
+3.Define X and Y array.
+
+4.Define a function for costFunction,cost and gradient.
+
+5.Define a function to plot the decision boundary and predict the Regression value
+
 ## Program:
-```
-/*
 Program to implement the the Logistic Regression Using Gradient Descent.
 Developed by: AVINASH K
 RegisterNumber:  212224220016
-*/
 
-import numpy as np
+```
+
 import pandas as pd
+import numpy as np
 import matplotlib.pyplot as plt
-from sklearn.preprocessing import StandardScaler
 
-data = pd.read_csv("Placement_Data (1).csv")
+df=pd.read_csv("Placement_Data.csv")
+df
 
-data['status'] = data['status'].map({'Placed': 1, 'Not Placed': 0})
+df=df.drop("sl_no",axis=1)
+df=df.drop("salary",axis=1)
+df
 
-X = data[['ssc_p', 'mba_p']].values
-y = data['status'].values
+from sklearn.preprocessing import LabelEncoder
+le=LabelEncoder()
+df["gender"]=df["gender"].astype('category')
+df["ssc_b"]=df["ssc_b"].astype('category')
+df["hsc_b"]=df["hsc_b"].astype('category')
+df["hsc_s"]=df["hsc_s"].astype('category')
+df["degree_t"]=df["degree_t"].astype('category')
+df["workex"]=df["workex"].astype('category')
+df["specialisation"]=df["specialisation"].astype('category')
+df["status"]=df["status"].astype('category')
+df.dtypes
 
+df["gender"]=df["gender"].cat.codes
+df["ssc_b"]=df["ssc_b"].cat.codes
+df["hsc_b"]=df["hsc_b"].cat.codes
+df["hsc_s"]=df["hsc_s"].cat.codes
+df["degree_t"]=df["degree_t"].cat.codes
+df["workex"]=df["workex"].cat.codes
+df["specialisation"]=df["specialisation"].cat.codes
+df["status"]=df["status"].cat.codes
+df
 
-scaler = StandardScaler()
-X = scaler.fit_transform(X)
+X=df.iloc[:,:-1].values
+Y=df.iloc[:,-1].values
+Y
 
-m = len(y)
-X = np.c_[np.ones(m), X]
-
+theta = np.random.random(X.shape[1])
+y=Y
 
 def sigmoid(z):
-    return 1 / (1 + np.exp(-z))
+    return 1/(1+np.exp(-z))
+
+def loss(theta,X,y):
+    h=sigmoid(X.dot(theta))
+    return -np.sum(y*np.log(h)+(1-y)*log(1-h))
+
+def gradient_descent(theta, X,y, alpha, num_iterations):
+    m=len(y)
+    for i in range(num_iterations):
+        h=sigmoid(X.dot(theta))
+        gradient=X.T.dot(h-y)/m
+        theta-= alpha*gradient
+    return theta
 
 
-def cost_function(X, y, theta):
-    h = sigmoid(X @ theta)
-    return (-1/m) * np.sum(y*np.log(h) + (1-y)*np.log(1-h))
+theta = gradient_descent(theta,X,y,alpha = 0.01, num_iterations = 1000)
+
+def predict(theta, X):
+    h= sigmoid(X.dot(theta))
+    y_pred=np.where(h>=0.5,1,0)
+    return y_pred
+y_pred=predict(theta,X)
+y_pred
 
 
-theta = np.zeros(X.shape[1])
-alpha = 0.1
-cost_history = []
+accuracy = np.mean(y_pred.flatten()==y)
+print("Accuracy",accuracy)
 
-for i in range(500):
-    z = X @ theta
-    h = sigmoid(z)
-    gradient = (1/m) * X.T @ (h - y)
-    theta = theta - alpha * gradient
-    
-    cost = cost_function(X, y, theta)
-    cost_history.append(cost)
+print(y_pred)
 
-y_pred = (sigmoid(X @ theta) >= 0.5).astype(int)
+print(Y)
 
-accuracy = np.mean(y_pred == y) * 100
-print("Weights:", theta)
-print("Accuracy:", accuracy, "%")
-
-plt.figure()
-plt.plot(cost_history)
-plt.xlabel("Iterations")
-plt.ylabel("Cost")
-plt.title("Logistic Regression using Gradient Descent")
-plt.show() 
+xnew= np.array([[0,87,0,95,0,2,0,0,1,0,0,0]])
+y_prednew=predict(theta,xnew)
+y_prednew()
 
 ```
 
 ## Output:
-<img width="752" height="601" alt="image" src="https://github.com/user-attachments/assets/2b911a56-5669-4f5d-913b-1c577444d8ce" />
 
+<img width="964" height="397" alt="image" src="https://github.com/user-attachments/assets/f2cc29d8-03a9-42c7-abda-905c2e290275" />
 
 
 ## Result:
